@@ -10,8 +10,6 @@ The goals of this demo:
 *   propagate exceptions to RPC client, if such scenario is used
 *   propagate exceptions to a dedicated error queue, when asynchronous scenario
 is used
-*   show validation of JSON content type and syntax for inbound messages. In
-addition, propagate exceptions to the client or dedicated error queue
 
 Retry Strategies
 ================
@@ -61,14 +59,16 @@ Essentially, a reply mechanism - as provided by Spring Retry - is a simple
 loop over retry attempts that terminates successfully or fails due to
 exhausted attempts.
 
-If the code that needs to be recovered throws a retryable exception,
-then another retry attempt is made. On the other hand, nonretryable
-exception is implemented in a way that immediately exhausts all remaining
+If the Rabbit Listener throws a retryable exception,
+another retry attempt is made, possibly after some backoff period,
+unless all retry attempts are exhausted.
+
+On the other hand, non-retryable exception immediately exhausts all remaining
 retry attempts. This allows us to provide the same retry resolution logic
-for both retryable and nonretryable exceptions.
+for both retryable and non-retryable exceptions.
 
 This is implemented via custom `RetryPolicy` that holds a list of
-retryable exceptions
+retryable exceptions.
 
 When all attempts are exhausted, Spring Retry proceeds to a **recovery**
 stage, when an attempt to recover from retry failure is made.
